@@ -9,36 +9,48 @@ const ranks = [
   'J', 'Q', 'K', 'A'
 ];
 
+interface CardSelectModalProps {
+  onClose: () => void;
+  onCardSelect: (rank: string, suit: string) => void;
+  setSelectedPlayerCards?: (cards: (prev: string[]) => string[]) => void;
+  selectedPlayerCards?: string[];
+}
 
-const CardSelectModal = ({ onClose, onCardSelect }) => {
-  const [suitSelectModalOpen, setSuitSelectModalOpen] = React.useState(false);
+const CardSelectModal: React.FC<CardSelectModalProps> = ({ onClose, onCardSelect, selectedPlayerCards, setSelectedPlayerCards }) => {
+
   return (
     <div className={styles.mainContainer} onClick={onClose}>
       <div className={styles.mainWrapper} onClick={(e) => e.stopPropagation()}>
-        <h2>Выберите карту</h2>
-        <div className="flex w-full flex-wrap justify-center align-center">
+        <div className={styles.cardGrid}>
           {ranks.map((rank) =>
-            <div key={`${rank}`} >
-              <button
-                className="card-item"
-                onClick={() => {
-                  // onCardSelect(rank, suit);
-                  setSuitSelectModalOpen(true);
-                  // onClose();
-                }}
+            suits.map((suit) => (
+              <div
+                key={`${rank}-${suit}`}
+                className={`${styles.cardItem} ${selectedPlayerCards?.includes(`${rank}${suit}`) ? styles.selected : ''
+                  }`}
               >
-                <img
-                  src={`/assets/ranks/${rank}.svg`}
-                  alt={`${rank}`}
-                  className="w-30 h-40"
-                />
-              </button>
-            </div>
+                <button onClick={() =>
+                  onCardSelect(rank, suit)}>
+                  <img
+                    src={`/assets/allCards/${rank}${suit}.png`}
+                    alt={`${rank}${suit}`}
+                  />
+                </button>
+              </div>
+
+            ))
           )}
         </div>
-        {suitSelectModalOpen &&
-          <SuitSelectModal onClose={onClose} onCardSelect={onCardSelect} />
-        }
+        <div className="">
+          <div>Выберите карты игрока</div>
+          <div className="flex w-full flex-wrap justify-center align-center flex-wrap">
+            {selectedPlayerCards.map((card) => (
+              <div key={card} onClick={() => setSelectedPlayerCards((prev) => prev.filter((c) => c !== card))}>
+                <img src={`/assets/allCards/${card}.png`} alt={card} />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
